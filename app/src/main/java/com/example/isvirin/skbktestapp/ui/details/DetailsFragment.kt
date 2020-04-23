@@ -1,10 +1,12 @@
 package com.example.isvirin.skbktestapp.ui.details
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import com.example.isvirin.skbktestapp.R
 import com.example.isvirin.skbktestapp.domain.model.Contact
@@ -13,6 +15,7 @@ import com.example.isvirin.skbktestapp.util.*
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.details_fragment.*
 import org.koin.androidx.viewmodel.ext.viewModel
+
 
 class DetailsFragment : Fragment() {
 
@@ -48,7 +51,7 @@ class DetailsFragment : Fragment() {
         viewModel.contact.observe(viewLifecycleOwner, Observer { updateContact(it) })
         imageViewBack.setOnClickListener {
             val navigationHandler = activity as NavigationHandler
-            navigationHandler.openContactLists()
+            navigationHandler.openContactList()
         }
     }
 
@@ -60,12 +63,17 @@ class DetailsFragment : Fragment() {
                 ResourceState.ERROR -> swipeRefreshLayout.stopRefreshing()
             }
             it.data?.let {
+                val phoneNumber = it.phone
                 textViewName.text = it.name
-                textViewPhone.text = it.phone
+                textViewPhone.text = phoneNumber
                 textViewTemperament.text = it.temperament.toString()
                 textViewEducation.text =
                     handleDate(it.educationPeriod.start, context).plus(" - ").plus(handleDate(it.educationPeriod.end, context))
                 textViewBiography.text = it.biography
+                textViewPhone.setOnClickListener {
+                    val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:".plus(phoneNumber)))
+                    startActivity(intent)
+                }
             }
             it.message?.let { snackBar.show() }
         }
